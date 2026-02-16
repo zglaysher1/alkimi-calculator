@@ -31,9 +31,9 @@ export default function Calculator() {
     setLoading(false);
   };
 
-  // Calculations
-  const marketTokens = investment / alkPrice;
-  const otcTokens = (investment / alkPrice) * (1 + discount / 100);
+  const investmentNum = investment ? parseFloat(investment) : 0;
+  const marketTokens = investmentNum / alkPrice;
+  const otcTokens = (investmentNum / alkPrice) * (1 + discount / 100);
   
   const marketTokensAfter = marketTokens * (1 + (apy / 100) * timeframe);
   const otcTokensAfter = otcTokens * (1 + (apy / 100) * timeframe);
@@ -41,62 +41,108 @@ export default function Calculator() {
   const marketValue = marketTokensAfter * alkPrice;
   const otcValue = otcTokensAfter * alkPrice;
   
-  const marketProfit = marketValue - investment;
-  const otcProfit = otcValue - investment;
+  const marketProfit = marketValue - investmentNum;
+  const otcProfit = otcValue - investmentNum;
   const additionalProfit = otcProfit - marketProfit;
-  const outperformance = ((otcProfit - marketProfit) / marketProfit * 100).toFixed(1);
+  const outperformance = marketProfit > 0 ? ((otcProfit - marketProfit) / marketProfit * 100).toFixed(1) : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-black p-8" style={{background: 'linear-gradient(135deg, #0f051f 0%, #1a0a3a 50%, #0f051f 100%)'}}>
-      <div className="max-w-7xl mx-auto">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #0f051f 0%, #1a0a3a 50%, #0f051f 100%)',
+      padding: '32px'
+    }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         {/* Header */}
-        <div className="mb-12">
-          <div className="flex items-center gap-3 mb-2">
-            <Zap className="w-8 h-8 text-purple-400" />
-            <h1 className="text-4xl font-bold text-white">Alkimi OTC Calculator</h1>
+        <div style={{ marginBottom: '48px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            <Zap style={{ width: '32px', height: '32px', color: '#a78bfa' }} />
+            <h1 style={{ fontSize: '48px', fontWeight: 'bold', color: 'white', margin: 0 }}>Alkimi OTC Calculator</h1>
           </div>
-          <p className="text-purple-300 text-base">Real-time investment comparison: Market Buy vs OTC Buy</p>
+          <p style={{ color: '#d8b4fe', fontSize: '18px', margin: 0 }}>Real-time investment comparison: Market Buy vs OTC Buy</p>
         </div>
 
         {/* Input Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '48px' }}>
           {/* Investment Amount */}
-          {/* Investment Amount */}
-          <div className="bg-black/40 backdrop-blur border border-purple-600/60 rounded-lg p-6">
-            <label className="block text-purple-300 text-xs font-semibold mb-3">
-              Investment Amount
+          <div style={{
+            background: 'rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(168, 85, 247, 0.3)',
+            borderRadius: '8px',
+            padding: '24px'
+          }}>
+            <label style={{ color: '#d8b4fe', fontSize: '12px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+              Investment Amount (USD)
             </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white font-bold pointer-events-none">$</span>
+            <div style={{ position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'white', fontWeight: 'bold', pointerEvents: 'none' }}>$</span>
               <input
                 type="number"
                 value={investment}
-                onChange={(e) => setInvestment(e.target.value ? parseFloat(e.target.value) : '')}
-                className="w-full bg-purple-950/40 text-white rounded px-4 py-3 pl-8 border border-purple-500/40 focus:border-purple-400 focus:outline-none text-base font-bold"
+                onChange={(e) => setInvestment(e.target.value ? parseFloat(e.target.value).toString() : '')}
+                style={{
+                  width: '100%',
+                  backgroundColor: 'rgba(109, 40, 217, 0.4)',
+                  color: 'white',
+                  borderRadius: '6px',
+                  padding: '12px 12px 12px 32px',
+                  border: '1px solid rgba(168, 85, 247, 0.3)',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  boxSizing: 'border-box'
+                }}
                 placeholder="0"
               />
             </div>
-            
+            <p style={{ color: '#9ca3af', fontSize: '12px', marginTop: '8px', margin: 0 }}>
+              ${investmentNum.toLocaleString()}
+            </p>
           </div>
 
           {/* ALK Price */}
-          <div className="bg-black/40 backdrop-blur border border-purple-600/60 rounded-lg p-6">
-            <label className="block text-purple-300 text-xs font-semibold mb-3">
+          <div style={{
+            background: 'rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(168, 85, 247, 0.3)',
+            borderRadius: '8px',
+            padding: '24px'
+          }}>
+            <label style={{ color: '#d8b4fe', fontSize: '12px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
               Current ALK Price
             </label>
-            <p className="text-white text-xl font-bold mb-4">${alkPrice.toFixed(6)}</p>
+            <p style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', marginBottom: '16px', margin: 0 }}>${alkPrice.toFixed(6)}</p>
             <button
               onClick={fetchAlkPrice}
               disabled={loading}
-              className="w-full bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded font-semibold disabled:opacity-50 transition text-xs"
+              style={{
+                width: '100%',
+                backgroundColor: '#a855f7',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                fontWeight: '600',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontSize: '12px',
+                opacity: loading ? 0.5 : 1
+              }}
+              onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#9333ea')}
+              onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#a855f7')}
             >
               {loading ? 'Updating...' : 'Refresh Price'}
             </button>
           </div>
 
           {/* Discount */}
-          <div className="bg-black/40 backdrop-blur border border-purple-600/60 rounded-lg p-6">
-            <label className="block text-purple-300 text-xs font-semibold mb-3">
+          <div style={{
+            background: 'rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(168, 85, 247, 0.3)',
+            borderRadius: '8px',
+            padding: '24px'
+          }}>
+            <label style={{ color: '#d8b4fe', fontSize: '12px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
               OTC Discount
             </label>
             <input
@@ -106,14 +152,22 @@ export default function Calculator() {
               step="1"
               value={discount}
               onChange={(e) => setDiscount(parseFloat(e.target.value))}
-              className="w-full"
+              style={{ width: '100%' }}
             />
-            <p className="text-purple-200 text-xl font-bold mt-3">{discount}%</p>
+            <p style={{ color: '#e9d5ff', fontSize: '20px', fontWeight: 'bold', marginTop: '12px', margin: 0 }}>{discount}%</p>
           </div>
 
           {/* APY */}
-          <div className="bg-black/40 backdrop-blur border border-purple-600/60 rounded-lg p-6 opacity-60 cursor-not-allowed">
-            <label className="block text-purple-300 text-xs font-semibold mb-3">
+          <div style={{
+            background: 'rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(168, 85, 247, 0.3)',
+            borderRadius: '8px',
+            padding: '24px',
+            opacity: 0.6,
+            cursor: 'not-allowed'
+          }}>
+            <label style={{ color: '#d8b4fe', fontSize: '12px', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
               Annual APY
             </label>
             <input
@@ -123,26 +177,35 @@ export default function Calculator() {
               step="1"
               value={apy}
               disabled
-              className="w-full opacity-50 cursor-not-allowed"
+              style={{ width: '100%', opacity: 0.5, cursor: 'not-allowed' }}
             />
-            <p className="text-purple-200 text-xl font-bold mt-3">{apy}%</p>
+            <p style={{ color: '#e9d5ff', fontSize: '20px', fontWeight: 'bold', marginTop: '12px', margin: 0 }}>{apy}%</p>
           </div>
 
           {/* Timeframe */}
-          <div className="bg-black/40 backdrop-blur border border-purple-600/60 rounded-lg p-6 col-span-full">
-            <label className="block text-purple-300 text-xs font-semibold mb-3">
+          <div style={{ gridColumn: 'span 1' }}>
+            <label style={{ color: '#d8b4fe', fontSize: '12px', fontWeight: '600', marginBottom: '12px', display: 'block' }}>
               Timeframe
             </label>
-            <div className="flex gap-2">
+            <div style={{ display: 'flex', gap: '8px' }}>
               {[0.5, 1, 2, 3].map(t => (
                 <button
                   key={t}
                   onClick={() => setTimeframe(t)}
-                  className={`flex-1 py-2 rounded font-semibold transition text-xs ${
-                    timeframe === t
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-purple-950/30 text-purple-300 hover:bg-purple-900/40'
-                  }`}
+                  style={{
+                    flex: 1,
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    fontWeight: '600',
+                    fontSize: '12px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    backgroundColor: timeframe === t ? '#a855f7' : 'rgba(109, 40, 217, 0.3)',
+                    color: 'white',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => !timeframe === t && (e.target.style.backgroundColor = 'rgba(109, 40, 217, 0.5)')}
+                  onMouseLeave={(e) => !timeframe === t && (e.target.style.backgroundColor = 'rgba(109, 40, 217, 0.3)')}
                 >
                   {t === 0.5 ? '6m' : t + 'y'}
                 </button>
@@ -152,106 +215,148 @@ export default function Calculator() {
         </div>
 
         {/* Comparison Cards */}
-        <div className="grid grid-cols-2 gap-8 mb-12">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '32px', marginBottom: '48px' }}>
           {/* Market Buy Card */}
-          <div className="bg-black/40 border border-purple-600/40 rounded-lg p-8">
-            <h2 className="text-xl font-bold text-white mb-8 flex items-center gap-2">
-              <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
+          <div style={{
+            background: 'rgba(0, 0, 0, 0.4)',
+            border: '1px solid rgba(168, 85, 247, 0.2)',
+            borderRadius: '8px',
+            padding: '32px'
+          }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: 'white', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+              <span style={{ width: '8px', height: '8px', backgroundColor: '#a78bfa', borderRadius: '50%' }}></span>
               Market Buy (No Discount)
             </h2>
             
-            <div className="space-y-5">
-              <div className="bg-purple-950/30 rounded p-5 border border-purple-600/30">
-                <p className="text-purple-300/70 text-xs mb-2">Initial Investment</p>
-                <p className="text-white text-xl font-bold">${investment.toLocaleString()}</p>
-              </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {[
+                { label: 'Initial Investment', value: investmentNum.toLocaleString() },
+                { label: 'Tokens Received', value: (marketTokens / 1e6).toFixed(2) + 'M' },
+                { label: `Tokens After ${timeframe}y Staking`, value: (marketTokensAfter / 1e6).toFixed(2) + 'M' },
+                { label: `Value After ${timeframe}y`, value: '$' + marketValue.toLocaleString(undefined, {maximumFractionDigits: 0}) }
+              ].map((item, idx) => (
+                <div key={idx} style={{
+                  background: 'rgba(109, 40, 217, 0.2)',
+                  borderRadius: '6px',
+                  padding: '16px',
+                  border: '1px solid rgba(168, 85, 247, 0.2)'
+                }}>
+                  <p style={{ color: 'rgba(216, 180, 254, 0.7)', fontSize: '12px', marginBottom: '4px', margin: 0 }}>{item.label}</p>
+                  <p style={{ color: 'white', fontSize: '18px', fontWeight: 'bold', margin: 0 }}>{item.value}</p>
+                </div>
+              ))}
 
-              <div className="bg-purple-950/30 rounded p-5 border border-purple-600/30">
-                <p className="text-purple-300/70 text-xs mb-2">Tokens Received</p>
-                <p className="text-white text-xl font-bold">{(marketTokens / 1e6).toFixed(2)}M</p>
-              </div>
-
-              <div className="bg-purple-950/30 rounded p-5 border border-purple-600/30">
-                <p className="text-purple-300/70 text-xs mb-2">Tokens After {timeframe}y Staking</p>
-                <p className="text-white text-xl font-bold">{(marketTokensAfter / 1e6).toFixed(2)}M</p>
-              </div>
-
-              <div className="bg-purple-950/30 rounded p-5 border border-purple-600/30">
-                <p className="text-purple-300/70 text-xs mb-2">Value After {timeframe}y</p>
-                <p className="text-white text-xl font-bold">${marketValue.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
-              </div>
-
-              <div className="bg-purple-600/20 border border-purple-600/60 rounded p-5 mt-6">
-                <p className="text-purple-300 text-xs mb-2">Total Profit</p>
-                <p className="text-purple-300 text-xl font-bold">${marketProfit.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
+              <div style={{
+                background: 'rgba(168, 85, 247, 0.2)',
+                border: '1px solid rgba(168, 85, 247, 0.4)',
+                borderRadius: '6px',
+                padding: '16px',
+                marginTop: '24px'
+              }}>
+                <p style={{ color: '#d8b4fe', fontSize: '12px', marginBottom: '4px', margin: 0 }}>Total Profit</p>
+                <p style={{ color: '#d8b4fe', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>${marketProfit.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
               </div>
             </div>
           </div>
 
           {/* OTC Buy Card */}
-          <div className="bg-gradient-to-br from-purple-900/40 to-black/40 border border-purple-500/60 rounded-lg p-8">
-            <h2 className="text-xl font-bold text-white mb-8 flex items-center gap-2">
-              <TrendingUp className="w-6 h-6 text-purple-400" />
+          <div style={{
+            background: 'linear-gradient(to bottom right, rgba(147, 51, 234, 0.2), rgba(0, 0, 0, 0.4))',
+            border: '1px solid rgba(168, 85, 247, 0.4)',
+            borderRadius: '8px',
+            padding: '32px'
+          }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: 'white', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+              <TrendingUp style={{ width: '24px', height: '24px', color: '#a78bfa' }} />
               OTC Buy ({discount}% Discount)
             </h2>
             
-            <div className="space-y-5">
-              <div className="bg-purple-900/30 rounded p-5 border border-purple-500/40">
-                <p className="text-purple-300 text-xs mb-2">Initial Investment</p>
-                <p className="text-white text-xl font-bold">${investment.toLocaleString()}</p>
-              </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {[
+                { label: 'Initial Investment', value: investmentNum.toLocaleString() },
+                { label: 'Tokens Received (with discount)', value: (otcTokens / 1e6).toFixed(2) + 'M', subValue: `+${((otcTokens - marketTokens) / 1e6).toFixed(2)}M vs market` },
+                { label: `Tokens After ${timeframe}y Staking`, value: (otcTokensAfter / 1e6).toFixed(2) + 'M' },
+                { label: `Value After ${timeframe}y`, value: '$' + otcValue.toLocaleString(undefined, {maximumFractionDigits: 0}) }
+              ].map((item, idx) => (
+                <div key={idx} style={{
+                  background: 'rgba(147, 51, 234, 0.2)',
+                  borderRadius: '6px',
+                  padding: '16px',
+                  border: '1px solid rgba(168, 85, 247, 0.3)'
+                }}>
+                  <p style={{ color: '#d8b4fe', fontSize: '12px', marginBottom: '4px', margin: 0 }}>{item.label}</p>
+                  <p style={{ color: 'white', fontSize: '18px', fontWeight: 'bold', margin: 0 }}>{item.value}</p>
+                  {item.subValue && <p style={{ color: '#d8b4fe', fontSize: '12px', marginTop: '4px', margin: 0 }}>{item.subValue}</p>}
+                </div>
+              ))}
 
-              <div className="bg-purple-900/30 rounded p-5 border border-purple-500/40">
-                <p className="text-purple-300 text-xs mb-2">Tokens Received (with discount)</p>
-                <p className="text-white text-xl font-bold">{(otcTokens / 1e6).toFixed(2)}M</p>
-                <p className="text-purple-300 text-xs mt-2">+{((otcTokens - marketTokens) / 1e6).toFixed(2)}M vs market</p>
-              </div>
-
-              <div className="bg-purple-900/30 rounded p-5 border border-purple-500/40">
-                <p className="text-purple-300 text-xs mb-2">Tokens After {timeframe}y Staking</p>
-                <p className="text-white text-xl font-bold">{(otcTokensAfter / 1e6).toFixed(2)}M</p>
-              </div>
-
-              <div className="bg-purple-900/30 rounded p-5 border border-purple-500/40">
-                <p className="text-purple-300 text-xs mb-2">Value After {timeframe}y</p>
-                <p className="text-white text-xl font-bold">${otcValue.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
-              </div>
-
-              <div className="bg-purple-600/30 border border-purple-500/80 rounded p-5 mt-6">
-                <p className="text-purple-200 text-xs mb-2">Total Profit</p>
-                <p className="text-purple-200 text-xl font-bold">${otcProfit.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
+              <div style={{
+                background: 'rgba(147, 51, 234, 0.3)',
+                border: '1px solid rgba(168, 85, 247, 0.5)',
+                borderRadius: '6px',
+                padding: '16px',
+                marginTop: '24px'
+              }}>
+                <p style={{ color: '#e9d5ff', fontSize: '12px', marginBottom: '4px', margin: 0 }}>Total Profit</p>
+                <p style={{ color: '#e9d5ff', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>${otcProfit.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Summary Stats */}
-        <div className="bg-black/40 border border-purple-600/60 rounded-lg p-8 mb-8">
-          <h3 className="text-xl font-bold text-white mb-6">OTC Advantage Summary</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-purple-950/40 border border-purple-600/40 rounded p-6">
-              <p className="text-purple-300 text-xs font-semibold mb-3">Additional Profit</p>
-              <p className="text-purple-300 text-xl font-bold">${additionalProfit.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
-              <p className="text-purple-400/60 text-xs mt-2">Gain from OTC discount + staking</p>
+        <div style={{
+          background: 'rgba(0, 0, 0, 0.4)',
+          border: '1px solid rgba(168, 85, 247, 0.3)',
+          borderRadius: '8px',
+          padding: '32px',
+          marginBottom: '32px'
+        }}>
+          <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: 'white', marginBottom: '24px', margin: 0 }}>OTC Advantage Summary</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
+            <div style={{
+              background: 'rgba(109, 40, 217, 0.2)',
+              border: '1px solid rgba(168, 85, 247, 0.2)',
+              borderRadius: '6px',
+              padding: '24px'
+            }}>
+              <p style={{ color: '#d8b4fe', fontSize: '12px', fontWeight: '600', marginBottom: '12px', margin: 0 }}>Additional Profit</p>
+              <p style={{ color: '#d8b4fe', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>${additionalProfit.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
+              <p style={{ color: 'rgba(168, 85, 247, 0.6)', fontSize: '12px', marginTop: '8px', margin: 0 }}>Gain from OTC discount + staking</p>
             </div>
 
-            <div className="bg-purple-950/40 border border-purple-600/40 rounded p-6">
-              <p className="text-purple-300 text-xs font-semibold mb-3">Outperformance</p>
-              <p className="text-purple-300 text-xl font-bold">+{outperformance}%</p>
-              <p className="text-purple-400/60 text-xs mt-2">vs market buy profit</p>
+            <div style={{
+              background: 'rgba(109, 40, 217, 0.2)',
+              border: '1px solid rgba(168, 85, 247, 0.2)',
+              borderRadius: '6px',
+              padding: '24px'
+            }}>
+              <p style={{ color: '#d8b4fe', fontSize: '12px', fontWeight: '600', marginBottom: '12px', margin: 0 }}>Outperformance</p>
+              <p style={{ color: '#d8b4fe', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>+{outperformance}%</p>
+              <p style={{ color: 'rgba(168, 85, 247, 0.6)', fontSize: '12px', marginTop: '8px', margin: 0 }}>vs market buy profit</p>
             </div>
 
-            <div className="bg-purple-950/40 border border-purple-600/40 rounded p-6">
-              <p className="text-purple-300 text-xs font-semibold mb-3">Total ROI</p>
-              <p className="text-purple-300 text-xl font-bold">{((otcProfit / investment) * 100).toFixed(1)}%</p>
-              <p className="text-purple-400/60 text-xs mt-2">Over {timeframe} year(s)</p>
+            <div style={{
+              background: 'rgba(109, 40, 217, 0.2)',
+              border: '1px solid rgba(168, 85, 247, 0.2)',
+              borderRadius: '6px',
+              padding: '24px'
+            }}>
+              <p style={{ color: '#d8b4fe', fontSize: '12px', fontWeight: '600', marginBottom: '12px', margin: 0 }}>Total ROI</p>
+              <p style={{ color: '#d8b4fe', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>{investmentNum > 0 ? ((otcProfit / investmentNum) * 100).toFixed(1) : 0}%</p>
+              <p style={{ color: 'rgba(168, 85, 247, 0.6)', fontSize: '12px', marginTop: '8px', margin: 0 }}>Over {timeframe} year(s)</p>
             </div>
           </div>
         </div>
 
         {/* Disclaimer */}
-        <div className="bg-purple-950/30 border border-purple-600/40 rounded-lg p-4">
-          <p className="text-purple-300 text-xs">
+        <div style={{
+          background: 'rgba(109, 40, 217, 0.2)',
+          border: '1px solid rgba(168, 85, 247, 0.2)',
+          borderRadius: '8px',
+          padding: '16px'
+        }}>
+          <p style={{ color: '#d8b4fe', fontSize: '12px', margin: 0 }}>
             ⚠️ <strong>Disclaimer:</strong> This calculator is illustrative only. Actual returns depend on APY variability, token price movements, liquidity, and staking terms. Past performance does not guarantee future results. Always conduct your own research before investing.
           </p>
         </div>
